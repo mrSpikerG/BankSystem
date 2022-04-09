@@ -49,5 +49,16 @@ namespace BankSystem
             Type = "Debit";
             Money = 0;
         }
+        public Card(int _CVV,double Money, string typeMoney,string typeCard, string cardId,DateTime endTime)
+        {
+            Type = typeCard;
+
+            CardId = cardId;
+            CVV = _CVV;
+            EndTime = endTime;
+            
+            MoneyType = typeMoney;
+            Money = Money;
+        }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,19 +15,39 @@ namespace BankSystem
         private string UserID;
         private string FIO;
         private Card[] Cards;
-        public string login { get; set; }
+        public string Login { get; set; }
+        public string Password { get; set; }
         //cards
 
-        public BankAccount(string surname,string name,string patronymicon,DateTime birthday)
+
+        //for registration
+        public BankAccount(string surname,string name,string patronymicon,DateTime birthday,string login,string password)
         {
+            Login = login;
+            Password = password;
+
+
             UserID = Statistic.countUsers;
             Statistic.addUser();
 
             Birthday = birthday;
             FIO = String.Format("{0} {1} {2}", surname, name, patronymicon);
             DayOfCreation = DateTime.Now;
+
+            File.AppendAllText("Accounts.txt", String.Format("{0} {1} \n{2} \n{3} {4} {5}",login,password,UserID,FIO,birthday.ToShortDateString(),DayOfCreation.ToShortDateString()));
         }
 
+        //for verify
+        public BankAccount(string surname, string name, string patronymicon, DateTime birthday,DateTime dayOfCreation, string login, string password,string userID)
+        {
+            Login = login;
+            Password = password;
+            UserID = userID;
+            
+            Birthday = birthday;
+            FIO = String.Format("{0} {1} {2}", surname, name, patronymicon);
+            DayOfCreation = dayOfCreation;
+        }
 
         //USD,UAH,EUR
         public void createCard(string type)

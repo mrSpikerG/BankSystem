@@ -17,9 +17,7 @@ namespace BankSystem
         public static long countCards { get; private set; }
 
         ////////////////////////////////////////////
-
-
-
+      
 
         ///////////  Money transfering  /////////////
         public static double USDtransferUAH { get; private set; } = 29.41;
