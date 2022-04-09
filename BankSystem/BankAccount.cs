@@ -13,7 +13,6 @@ namespace BankSystem
         private DateTime DayOfCreation;
         private string UserID;
         private string FIO;
-        private int Money;
         private Card[] Cards;
         public string login { get; set; }
         //cards
@@ -26,15 +25,16 @@ namespace BankSystem
             Birthday = birthday;
             FIO = String.Format("{0} {1} {2}", surname, name, patronymicon);
             DayOfCreation = DateTime.Now;
-            Money = 0;
         }
 
-        public void createCard()
+
+        //USD,UAH,EUR
+        public void createCard(string type)
         {
             if (Cards == null)
             {
                 Cards = new Card[1];
-                Cards[0] = new Card();
+                Cards[0] = new Card(type);
             }
             else
             {
@@ -46,6 +46,27 @@ namespace BankSystem
                 Cards = temp;
             }
         }
+        public double getAllMoney()
+        {
+            double sum = 0;
 
+            for(int i = 0; i < Cards.Length; i++)
+            {
+                //Я понимаю что свитч - один из 8 смертных грехов, но лишний раз парится из-за этого не хочется :<
+                switch (Cards[i].Type)
+                {
+                    case "USD":
+                        sum+=Cards[i].Money * Statistic.USDtransferUAH;
+                        break;
+                    case "EUR":
+                        sum+=Cards[i].Money * Statistic.EURtransferUAH;
+                        break;
+                    case "UAH":
+                        sum += Cards[i].Money;
+                        break;
+                }
+            }
+            return sum;
+        }
     }
 }
