@@ -11,12 +11,17 @@ namespace BankSystem
     class System
     {
         private Card[] allCards;
+        private Logger log = new Logger();
 
         public void registerInSystem()
         {
+            log.printInLog("Неизвестный пользователь начал регистрацию", "INFO");
             string login, password;
+
             Console.Write("Введите логин: ");
             login = Console.ReadLine();
+            log.printInLog("Неизвестный пользователь ввел логин в поле регистрации", "INFO");
+            log.printInLog($"Неизвестный пользователь переименован в {login}", "INFO");
 
             bool haveDigital;
             bool haveUppercase;
@@ -30,6 +35,7 @@ namespace BankSystem
                 {
                     Console.Write("Введите пароль: ");
                     password = Console.ReadLine();
+                    log.printInLog($"{login} ввёл пароль в поле регистрации", "INFO");
 
                     if (password == "Qwerty12345") { throw new Exception("Пожалуйста используйте СИЛЬНЫЙ пароль"); }
                     if (password.Length < 8 || password.Length > 16) { throw new Exception("Пароль должен быть размером 8-16 символов"); }
@@ -59,6 +65,7 @@ namespace BankSystem
                 }
                 catch (NotEnoughStrengthException e)
                 {
+                    log.printInLog($"{login} ввёл некорректный пароль: Символ, цифра, заглавная буква", "WARN");
                     Console.Clear();
                     Console.Write($"Введите логин: {login}");
                     e.getAdvMessege();
@@ -66,6 +73,7 @@ namespace BankSystem
                 }
                 catch (Exception e)
                 {
+                    log.printInLog($"{login} ввёл некорректный пароль: {e.Message}", "WARN");
                     Console.Clear();
                     Console.Write($"Введите логин: {login}");
                     Console.ForegroundColor = ConsoleColor.Red;
@@ -78,7 +86,8 @@ namespace BankSystem
             //Взял код с интернета :<
             byte[] data = Encoding.Default.GetBytes(password);
             var result = new SHA256Managed().ComputeHash(data);
-            password=(BitConverter.ToString(result).Replace("-", "").ToLower());
+            password = (BitConverter.ToString(result).Replace("-", "").ToLower());
+            log.printInLog($"Пароль {login} успешно зашифрован", "INFO");
 
 
             Console.Clear();
@@ -91,15 +100,22 @@ namespace BankSystem
 
             Console.Write("Введите ваше отчество: ");
             string patronymicon = Console.ReadLine();
+            log.printInLog($"Пароль {login} успешно указал ФИО", "INFO");
 
             Console.Clear();
             Console.Write("Введите день месяц и год вашего рождения в формате dd:mm:yyyy : ");
             string strBirthday = Console.ReadLine();
             string[] temp = strBirthday.Split(":");
 
+            ///////////////////////////////////////////////////
+            //Не забудь сделать проверку на правильную дату!!//
+            ///////////////////////////////////////////////////
             DateTime birthday = new DateTime(Convert.ToInt16(temp[0]), Convert.ToInt16(temp[1]), Convert.ToInt16(temp[2]));
+            log.printInLog($"Дата рождения {login} успешно указана", "INFO");
 
-            new BankAccount(surname, name, patronymicon, birthday, login, password);
+
+            BankAccount newUser = new BankAccount(surname, name, patronymicon, birthday, login, password);
+            log.printInLog($"Банковский счёт {login} успешно зарегестрирован", "INFO");
 
         }
         public void loginInSystem()
