@@ -24,23 +24,19 @@ namespace BankSystem.Exceptions
             Console.WriteLine("В пароле должны быть:");
 
             if (HaveUppercase) { Console.ForegroundColor = ConsoleColor.Green; }
+            
             Console.WriteLine(" - Буква верхнего регистра");
-
+            Console.ForegroundColor = ConsoleColor.Red;
 
             if (HaveUppercase) { Console.ForegroundColor = ConsoleColor.Green; }
-            else
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-            }
+        
             Console.WriteLine(" - Цифра");
+            Console.ForegroundColor = ConsoleColor.Red;
 
 
             if (HaveUppercase) { Console.ForegroundColor = ConsoleColor.Green; }
-            else
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine(" - Символ");
-            }
+           
+            Console.WriteLine(" - Символ");
             Console.ForegroundColor = ConsoleColor.White;
         }
     }

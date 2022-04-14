@@ -27,8 +27,8 @@ namespace BankSystem
             Password = password;
 
 
-            UserID = Statistic.countUsers;
             Statistic.addUser();
+            UserID = Statistic.countUsers;
 
             Birthday = birthday;
             FIO = String.Format("{0} {1} {2}", surname, name, patronymicon);
@@ -36,9 +36,10 @@ namespace BankSystem
 
 
             //.txt это кстати топовая база данных 2022 
-            File.AppendAllText("Accounts.txt", String.Format("{0} {1} \n{2} \n{3} {4} {5}", login, password, UserID, FIO, birthday.ToShortDateString(), DayOfCreation.ToShortDateString()));
+            File.AppendAllText("Accounts.txt", String.Format("{0} {1} \n{2} \n{3} {4} {5}\n", login, password, UserID, FIO, birthday.ToShortDateString(), DayOfCreation.ToShortDateString()));
             log.printInLog($"Банковский счёт {login} успешно записан в базу данных", "INFO");
         }
+        
 
         //for verify
         public BankAccount(string surname, string name, string patronymicon, DateTime birthday, DateTime dayOfCreation, string login, string password, string userID)
@@ -53,7 +54,7 @@ namespace BankSystem
         }
 
         //USD,UAH,EUR
-        public void createCard(string type)
+        public void createCard(ushort type)
         {
             if (Cards == null)
             {
@@ -72,25 +73,19 @@ namespace BankSystem
                 log.printInLog($"{Login} завел новую карту", "INFO");
             }
         }
+
+
+        private double[] transfer = new double[3];
         public double getAllMoney()
         {
             double sum = 0;
+            transfer[0] = 1;//UAH to UAH
+            transfer[1] = Statistic.USDtransferUAH;//USD to UAH
+            transfer[2] = Statistic.EURtransferUAH;//EUR to UAH
 
             for (int i = 0; i < Cards.Length; i++)
             {
-                //Я понимаю что свитч - один из 8 смертных грехов, но лишний раз парится из-за этого не хочется :<
-                switch (Cards[i].Type)
-                {
-                    case "USD":
-                        sum += Cards[i].Money * Statistic.USDtransferUAH;
-                        break;
-                    case "EUR":
-                        sum += Cards[i].Money * Statistic.EURtransferUAH;
-                        break;
-                    case "UAH":
-                        sum += Cards[i].Money;
-                        break;
-                }
+                sum += Cards[i].Money * transfer[Cards[i].MoneyType - 1]; 
             }
             return sum;
         }

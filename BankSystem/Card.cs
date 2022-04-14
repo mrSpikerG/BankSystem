@@ -17,12 +17,17 @@ namespace BankSystem
         public int CVV { get; private set; }
 
         //Money
-        public string MoneyType { get; private set; }
+        public ushort MoneyType { get; private set; }
         public double Money { get; private set; }
 
 
         private Random rand = new Random();
-        public Card(string type)
+        
+        
+        //1 - UAH
+        //2 - USD
+        //3 - EUR
+        public Card(ushort type)
         {
             MoneyType = type;
             //card id genetation
@@ -49,7 +54,7 @@ namespace BankSystem
             Type = "Debit";
             Money = 0;
         }
-        public Card(int _CVV,double Money, string typeMoney,string typeCard, string cardId,DateTime endTime)
+        public Card(int _CVV,double money, ushort typeMoney,string typeCard, string cardId,DateTime endTime)
         {
             Type = typeCard;
 
@@ -58,7 +63,7 @@ namespace BankSystem
             EndTime = endTime;
             
             MoneyType = typeMoney;
-            Money = Money;
+            Money = money;
         }
     }
 }
