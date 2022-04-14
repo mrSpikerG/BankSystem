@@ -40,7 +40,7 @@ namespace BankSystem
             int sum = 0;
             for (int i = 0; i < CardId.Length; i++)
             {
-                if (i  % 2 == 0)
+                if (i + 1 % 2 != 0)
                 {
                     sum += Convert.ToInt32(CardId[i]) * 2;
                 }

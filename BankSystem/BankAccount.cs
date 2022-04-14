@@ -117,7 +117,7 @@ namespace BankSystem
         private void addToSystem(string cardId)
         {
             //название начинается с восклицательного знака чтобы легко найти файл
-            File.AppendAllText("Cards/!CardLogs.txt", String.Format("{0} {1}\n", Login, cardId));
+            File.AppendAllText("Cards/!CardLogs.txt", String.Format("{0} {1}", Login, cardId));
 
             string text = File.ReadAllText("Cards/!CardLogs.txt");
             string[] mas = text.Split("\n");
@@ -127,7 +127,7 @@ namespace BankSystem
 
             for (int i = 0; i < mas.Length; i++)
             {
-                File.AppendAllText("Cards/!CardLogs.txt", String.Format("{0}\n", mas[i]));
+                File.AppendAllText("Cards/!CardLogs.txt", String.Format("{0}", mas[i]));
             }
 
         }
@@ -199,7 +199,7 @@ namespace BankSystem
             //Алгоритм ЛУНА
             do
             {
-                Console.WriteLine("Напишите карточку на которую хотите перевести деньги: ");
+                Console.Write("Напишите карточку на которую хотите перевести деньги: ");
                 cardId = Console.ReadLine();
 
                 int sum = 0;
@@ -232,14 +232,15 @@ namespace BankSystem
                 if (temp[1] == cardId)
                     log.printInLog($"{Login} начал перевод на карту {cardId}", "INFO");
                 {
-                    string userInfo = File.ReadAllText($"{temp[0]}.txt");
+                    string userInfo = File.ReadAllText($"Cards/{temp[0]}.txt");
                     string[] tmp1 = userInfo.Split("\n");
                     for (int j = 0; j < tmp1.Length; j++)
                     {
                         string[] tmp2 = tmp1[i].Split(" ");
                         if (tmp2[4] == cardId)
                         {
-                            tmp2[1] += convertMoney / transfer[Convert.ToUInt16(tmp2[2])];
+                            tmp2[1] = Math.Round(Convert.ToDouble(tmp2[1]) + convertMoney / transfer[Convert.ToUInt16(tmp2[2]) - 1], 2).ToString();
+                           
                             Cards[yourCard].Money -= yourMoney;
                             log.printInLog($"{Login} успешно перевёл деньги на карту {cardId}", "INFO");
 
@@ -248,7 +249,7 @@ namespace BankSystem
                         }
                     }
                     userInfo = String.Join("\n", tmp1);
-                    File.WriteAllText($"{temp[0]}.txt", userInfo);
+                    File.WriteAllText($"Cards/{temp[0]}.txt", userInfo);
                     return;
                 }
             }

@@ -297,7 +297,7 @@ namespace BankSystem
             //Алгоритм ЛУНА
             do
             {
-                Console.WriteLine("Напишите карточку на которую хотите положить деньги: ");
+                Console.Write("Напишите карточку на которую хотите положить деньги: ");
                 cardId = Console.ReadLine();
 
                 int sum = 0;
@@ -330,20 +330,20 @@ namespace BankSystem
                 if (temp[1] == cardId)
                     log.printInLog($"неизвестный пользователь начал процесс пополнения денег на карте {cardId}", "INFO");
                 {
-                    string userInfo = File.ReadAllText($"{temp[0]}.txt");
+                    string userInfo = File.ReadAllText($"Cards/{temp[0]}.txt");
                     string[] tmp1 = userInfo.Split("\n");
                     for (int j = 0; j < tmp1.Length; j++)
                     {
                         string[] tmp2 = tmp1[i].Split(" ");
                         if (tmp2[4] == cardId)
                         {
-                            tmp2[1] += convertMoney / transfer[Convert.ToUInt16(tmp2[2])];
+                            tmp2[1] = Math.Round(Convert.ToDouble(tmp2[1]) + convertMoney / transfer[Convert.ToUInt16(tmp2[2])-1],2).ToString();
                             tmp1[i] = String.Join(" ", tmp2);
                             log.printInLog($"неизвестный пользователь пополнил счет на карте {cardId}", "INFO");
                         }
                     }
                     userInfo = String.Join("\n", tmp1);
-                    File.WriteAllText($"{temp[0]}.txt", userInfo);
+                    File.WriteAllText($"Cards/{temp[0]}.txt", userInfo);
                 }
             }
         }
