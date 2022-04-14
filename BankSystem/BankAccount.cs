@@ -90,7 +90,7 @@ namespace BankSystem
 
                 if (!Directory.Exists("Cards")) { Directory.CreateDirectory("Cards"); }
                 log.printInLog($"Новая каррта {Login} добавлена в базу данных", "INFO");
-                File.AppendAllText($"Cards/{Login}.txt", String.Format("{0} {1} {2} {3} {4} {5}\n", Cards[0].CVV, Cards[0].Money, type, Cards[0].Type, Cards[0].CardId, Cards[0].EndTime));
+                File.AppendAllText($"Cards/{Login}.txt", String.Format("{0} {1} {2} {3} {4} {5}\n", Cards[0].CVV, Cards[0].Money, type, Cards[0].Type, Cards[0].CardId, Cards[0].EndTime.ToShortDateString()));
 
                 addToSystem(Cards[0].CardId);
             }
@@ -107,7 +107,7 @@ namespace BankSystem
                 log.printInLog($"{Login} завел новую карту", "INFO");
 
                 if (!Directory.Exists("Cards")) { Directory.CreateDirectory("Cards"); }
-                File.AppendAllText($"Cards/{Login}.txt", String.Format("{0} {1} {2} {3} {4} {5} \n", temp[Cards.Length - 1].CVV, temp[Cards.Length - 1].Money, type, temp[Cards.Length - 1].Type, temp[Cards.Length - 1].CardId, temp[Cards.Length - 1].EndTime));
+                File.AppendAllText($"Cards/{Login}.txt", String.Format("{0} {1} {2} {3} {4} {5} \n", temp[Cards.Length - 1].CVV, temp[Cards.Length - 1].Money, type, temp[Cards.Length - 1].Type, temp[Cards.Length - 1].CardId, temp[Cards.Length - 1].EndTime.ToShortDateString()));
                 log.printInLog($"Новая каррта {Login} добавлена в базу данных", "INFO");
 
                 addToSystem(temp[Cards.Length - 1].CardId);
@@ -153,7 +153,8 @@ namespace BankSystem
             log.printInLog($"{Login} запросил информацию о картах", "INFO");
             for (int i = 0; i < Cards.Length; i++)
             {
-                Console.WriteLine(String.Format("{0} - {1} \n{2} {3} \n{}\n", i, Cards[i].Type, Cards[i].CardId, Cards[i].Money, Cards[i].MoneyType));
+                
+                Console.WriteLine(String.Format("{0} - {1} \n{2} \n{3} {4}\n", i, Cards[i].Type, Cards[i].CardId, Cards[i].Money, Cards[i].MoneyType));
             }
         }
         public void payMoneyTo()
@@ -276,7 +277,8 @@ namespace BankSystem
             for (int i = 0; i < cards.Length - 1; i++)
             {
                 temp = cards[i].Split(" ");
-                verifiedCards[i] = new Card(Convert.ToInt32(temp[0]), Convert.ToDouble(temp[1]), Convert.ToUInt16(temp[2]), temp[3], temp[4], Convert.ToDateTime(temp[5]));
+                string[] dateTemp = temp[5].Split(".");
+                verifiedCards[i] = new Card(Convert.ToInt32(temp[0]), Convert.ToDouble(temp[1]), Convert.ToUInt16(temp[2]), temp[3], temp[4], new DateTime(Convert.ToInt32(dateTemp[2]), Convert.ToInt32(dateTemp[1]), Convert.ToInt32(dateTemp[0])));
             }
             log.printInLog($"Верификация карточек {Login} закончена, верифицировано {verifiedCards.Length} карточек)", "INFO");
             return verifiedCards;

@@ -189,7 +189,7 @@ namespace BankSystem
                 log.printInLog($"Неизвестный пользователь переименован в {login}", "INFO");
 
 
-                if (File.Exists("Accounts.txt"))
+                if (!File.Exists("Accounts.txt"))
                 {
                     throw new FileNotFoundException("У нашего банка еще нет пользователей", "Account.txt");
                 }
@@ -220,14 +220,14 @@ namespace BankSystem
                             string[] birth = AdditionalInfo[3].Split(".");
                             string[] create = AdditionalInfo[4].Split(".");
 
-                            DateTime birthday = new DateTime(Convert.ToInt16(birth[0]), Convert.ToInt16(birth[1]), Convert.ToInt16(birth[2]));
-                            DateTime DayOfCreation = new DateTime(Convert.ToInt16(create[0]), Convert.ToInt16(create[1]), Convert.ToInt16(create[2]));
+                            DateTime birthday = new DateTime(Convert.ToInt16(birth[2]), Convert.ToInt16(birth[1]), Convert.ToInt16(birth[0]));
+                            DateTime DayOfCreation = new DateTime(Convert.ToInt16(create[2]), Convert.ToInt16(create[1]), Convert.ToInt16(create[0]));
                             log.printInLog($"Информация о {login} успешно считана", "INFO");
 
                             Account = new BankAccount(AdditionalInfo[0], AdditionalInfo[1], AdditionalInfo[2], birthday, DayOfCreation, login, password, DBINFO[i + 1]);
                             log.printInLog($"Аккаунт {login} готов к использованию", "INFO");
 
-                            Action[] act = new Action[3];
+                            Action[] act = new Action[4];
                             act[0] = Account.createCard;
                             act[1] = Account.showCards;
                             act[2] = Account.getAllMoney;
@@ -237,8 +237,7 @@ namespace BankSystem
                             do
                             {
                                 Console.WriteLine($"{Account.FIO}");
-                                Console.WriteLine($"Количество карт: {Account.Cards.Length}");
-
+                                    
                                 Console.WriteLine("\n\t Меню");
                                 Console.WriteLine("1 - Создать новую карту");
                                 Console.WriteLine("2 - Получить информкцию о картах");

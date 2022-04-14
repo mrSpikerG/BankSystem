@@ -34,12 +34,13 @@ namespace BankSystem
             MoneyType = type;
             //card id genetation
             #region
-            CardId = "516874" +Statistic.countCards.ToString().PadLeft(9);
+            CardId = "516874" +Statistic.countCards.ToString().PadLeft(9,'0');
+            Statistic.addCard();
             //Luna algorithm
             int sum = 0;
             for (int i = 0; i < CardId.Length; i++)
             {
-                if (i + 1 % 2 != 0)
+                if (i  % 2 == 0)
                 {
                     sum += Convert.ToInt32(CardId[i]) * 2;
                 }
