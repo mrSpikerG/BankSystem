@@ -13,6 +13,7 @@ namespace BankSystem
 
             act[0] = sys.registerInSystem;
             act[1] = sys.loginInSystem;
+            act[2] = sys.moneyToCard;
 
       
             int check;

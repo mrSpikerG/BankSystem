@@ -9,6 +9,7 @@ namespace BankSystem
 {
     class BankAccount
     {
+        private double[] transfer = new double[3];
         private Logger log = new Logger();
         public DateTime Birthday;
         public DateTime DayOfCreation;
@@ -131,7 +132,7 @@ namespace BankSystem
 
         }
 
-        private double[] transfer = new double[3];
+
         public void getAllMoney()
         {
             Console.Clear();
@@ -239,16 +240,17 @@ namespace BankSystem
                         {
                             tmp2[1] += convertMoney / transfer[Convert.ToUInt16(tmp2[2])];
                             Cards[yourCard].Money -= yourMoney;
+                            log.printInLog($"{Login} успешно перевёл деньги на карту {cardId}", "INFO");
 
                             tmp1[i] = String.Join(" ", tmp2);
+                            break;
                         }
                     }
                     userInfo = String.Join("\n", tmp1);
                     File.WriteAllText($"{temp[0]}.txt", userInfo);
+                    return;
                 }
             }
-
-
         }
         private Card[] verifyCard()
         {

@@ -14,8 +14,14 @@ namespace BankSystem
         private Card[] allCards;
         private Logger log = new Logger();
         private BankAccount Account;
+        private double[] transfer = new double[3];
 
-
+        public System()
+        {
+            transfer[0] = 1;//UAH to UAH
+            transfer[1] = Statistic.USDtransferUAH;//USD to UAH
+            transfer[2] = Statistic.EURtransferUAH;//EUR to UAH
+        }
 
 
 
@@ -278,6 +284,69 @@ namespace BankSystem
             }
         }
 
+        public void moneyToCard()
+        {
+            log.printInLog("Неизвестный пользователь запросил пополнение счета", "INFO");
+            string text = File.ReadAllText("Cards/!CardLogs.txt");
+            string[] mas = text.Split("\n");
 
+            Console.Write("Введите количество денег которые собираетесь положить: ");
+            double convertMoney = double.Parse(Console.ReadLine());
+
+            string cardId;
+            bool isOk = false;
+            //Алгоритм ЛУНА
+            do
+            {
+                Console.WriteLine("Напишите карточку на которую хотите положить деньги: ");
+                cardId = Console.ReadLine();
+
+                int sum = 0;
+                for (int i = 0; i < 16; i++)
+                {
+
+                    if (i + 1 % 2 != 0)
+                    {
+                        sum += Convert.ToInt32(cardId[i]) * 2;
+                    }
+                    else
+                    {
+                        sum += Convert.ToInt32(cardId[i]);
+                    }
+                }
+                isOk = sum % 10 == 0 ? true : false;
+                if (!isOk)
+                {
+                    log.printInLog("неизвестный пользователь указал некорекктную карту {cardId}", "INFO");
+                }
+
+            } while (!isOk);
+            log.printInLog("неизвестный пользователь указал корекктную карту {cardId}", "INFO");
+
+
+            string[] temp;
+            for (int i = 0; i < mas.Length; i++)
+            {
+                temp = mas[i].Split(" ");
+                if (temp[1] == cardId)
+                    log.printInLog($"неизвестный пользователь начал процесс пополнения денег на карте {cardId}", "INFO");
+                {
+                    string userInfo = File.ReadAllText($"{temp[0]}.txt");
+                    string[] tmp1 = userInfo.Split("\n");
+                    for (int j = 0; j < tmp1.Length; j++)
+                    {
+                        string[] tmp2 = tmp1[i].Split(" ");
+                        if (tmp2[4] == cardId)
+                        {
+                            tmp2[1] += convertMoney / transfer[Convert.ToUInt16(tmp2[2])];
+                            tmp1[i] = String.Join(" ", tmp2);
+                            log.printInLog($"неизвестный пользователь пополнил счет на карте {cardId}", "INFO");
+                        }
+                    }
+                    userInfo = String.Join("\n", tmp1);
+                    File.WriteAllText($"{temp[0]}.txt", userInfo);
+                }
+            }
+        }
     }
 }
