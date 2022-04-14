@@ -20,8 +20,14 @@ namespace BankSystem
         //cards
 
 
+        private BankAccount()
+        {
+            transfer[0] = 1;//UAH to UAH
+            transfer[1] = Statistic.USDtransferUAH;//USD to UAH
+            transfer[2] = Statistic.EURtransferUAH;//EUR to UAH
+        }
         //for registration
-        public BankAccount(string surname, string name, string patronymicon, DateTime birthday, string login, string password)
+        public BankAccount(string surname, string name, string patronymicon, DateTime birthday, string login, string password) : this()
         {
             Login = login;
             Password = password;
@@ -38,11 +44,12 @@ namespace BankSystem
             //.txt это кстати топовая база данных 2022 
             File.AppendAllText("Accounts.txt", String.Format("{0} {1} \n{2} \n{3} {4} {5}\n", login, password, UserID, FIO, birthday.ToShortDateString(), DayOfCreation.ToShortDateString()));
             log.printInLog($"Банковский счёт {login} успешно записан в базу данных", "INFO");
+
         }
 
 
         //for verify
-        public BankAccount(string surname, string name, string patronymicon, DateTime birthday, DateTime dayOfCreation, string login, string password, string userID)
+        public BankAccount(string surname, string name, string patronymicon, DateTime birthday, DateTime dayOfCreation, string login, string password, string userID) : this()
         {
             Login = login;
             Password = password;
@@ -57,6 +64,7 @@ namespace BankSystem
         //USD,UAH,EUR
         public void createCard()
         {
+            Console.Clear();
             ushort type;
             do
             {
@@ -126,11 +134,10 @@ namespace BankSystem
         private double[] transfer = new double[3];
         public void getAllMoney()
         {
+            Console.Clear();
             log.printInLog($"{Login} запросил общий счёт", "INFO");
             double sum = 0;
-            transfer[0] = 1;//UAH to UAH
-            transfer[1] = Statistic.USDtransferUAH;//USD to UAH
-            transfer[2] = Statistic.EURtransferUAH;//EUR to UAH
+
 
             for (int i = 0; i < Cards.Length; i++)
             {
@@ -141,18 +148,49 @@ namespace BankSystem
 
         public void showCards()
         {
+            Console.Clear();
             log.printInLog($"{Login} запросил информацию о картах", "INFO");
             for (int i = 0; i < Cards.Length; i++)
             {
-                Console.WriteLine(String.Format("{0} {1} \n{2} {3} \n{}\n", i, Cards[i].Type, Cards[i].CardId, Cards[i].Money, Cards[i].MoneyType));
+                Console.WriteLine(String.Format("{0} - {1} \n{2} {3} \n{}\n", i, Cards[i].Type, Cards[i].CardId, Cards[i].Money, Cards[i].MoneyType));
             }
         }
         public void payMoneyTo()
         {
+            Console.Clear();
+            if (Cards.Length < 1)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("У вас еще нет карточек");
+                Console.ForegroundColor = ConsoleColor.White;
+                return;
+            }
+
             log.printInLog($"{Login} запросил перевод на другую карту", "INFO");
             string text = File.ReadAllText("Cards/!CardLogs.txt");
             string[] mas = text.Split("\n");
 
+
+            showCards();
+            Console.Write("Введите карту с которой собираетесь списать деньги: ");
+            ushort yourCard = ushort.Parse(Console.ReadLine());
+            log.printInLog($"{Login} выбрал карту для перевода", "INFO");
+
+
+            double yourMoney;
+            do
+            {
+                Console.Write("Введите количество денег которые собираетесь передать: ");
+                yourMoney = double.Parse(Console.ReadLine());
+                if (yourMoney > Cards[yourCard].Money)
+                {
+                    log.printInLog($"{Login} выбрал сумму превышающую имеющуюся", "INFO");
+                }
+            } while (yourMoney > Cards[yourCard].Money);
+            log.printInLog($"{Login} выбрал сумму для перевода", "INFO");
+
+            double convertMoney = yourMoney * transfer[Cards[yourCard].MoneyType - 1];
+            log.printInLog($"{Login} деньги для перевода конвертированы в гривны", "INFO");
 
             string cardId;
             bool isOk = false;
@@ -192,7 +230,21 @@ namespace BankSystem
                 if (temp[1] == cardId)
                     log.printInLog($"{Login} начал перевод на карту {cardId}", "INFO");
                 {
+                    string userInfo = File.ReadAllText($"{temp[0]}.txt");
+                    string[] tmp1 = userInfo.Split("\n");
+                    for (int j = 0; j < tmp1.Length; j++)
+                    {
+                        string[] tmp2 = tmp1[i].Split(" ");
+                        if (tmp2[4] == cardId)
+                        {
+                            tmp2[1] += convertMoney / transfer[Convert.ToUInt16(tmp2[2])];
+                            Cards[yourCard].Money -= yourMoney;
 
+                            tmp1[i] = String.Join(" ", tmp2);
+                        }
+                    }
+                    userInfo = String.Join("\n", tmp1);
+                    File.WriteAllText($"{temp[0]}.txt", userInfo);
                 }
             }
 

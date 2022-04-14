@@ -18,7 +18,7 @@ namespace BankSystem
 
         //Money
         public ushort MoneyType { get; private set; }
-        public double Money { get; private set; }
+        public double Money { get; set; }
 
 
         private Random rand = new Random();
