@@ -27,6 +27,8 @@ namespace BankSystem
         //1 - UAH
         //2 - USD
         //3 - EUR
+
+        //for creation
         public Card(ushort type)
         {
             MoneyType = type;
@@ -54,6 +56,7 @@ namespace BankSystem
             Type = "Debit";
             Money = 0;
         }
+        //for verify
         public Card(int _CVV,double money, ushort typeMoney,string typeCard, string cardId,DateTime endTime)
         {
             Type = typeCard;

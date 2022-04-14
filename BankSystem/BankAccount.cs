@@ -9,12 +9,12 @@ namespace BankSystem
 {
     class BankAccount
     {
-        Logger log = new Logger();
-        private DateTime Birthday;
-        private DateTime DayOfCreation;
-        private string UserID;
-        private string FIO;
-        private Card[] Cards;
+        private Logger log = new Logger();
+        public DateTime Birthday;
+        public DateTime DayOfCreation;
+        public string UserID;
+        public string FIO;
+        public Card[] Cards;
         public string Login { get; set; }
         public string Password { get; set; }
         //cards
@@ -39,7 +39,7 @@ namespace BankSystem
             File.AppendAllText("Accounts.txt", String.Format("{0} {1} \n{2} \n{3} {4} {5}\n", login, password, UserID, FIO, birthday.ToShortDateString(), DayOfCreation.ToShortDateString()));
             log.printInLog($"Банковский счёт {login} успешно записан в базу данных", "INFO");
         }
-        
+
 
         //for verify
         public BankAccount(string surname, string name, string patronymicon, DateTime birthday, DateTime dayOfCreation, string login, string password, string userID)
@@ -51,16 +51,39 @@ namespace BankSystem
             Birthday = birthday;
             FIO = String.Format("{0} {1} {2}", surname, name, patronymicon);
             DayOfCreation = dayOfCreation;
+            Cards = verifyCard();
         }
 
         //USD,UAH,EUR
-        public void createCard(ushort type)
+        public void createCard()
         {
+            ushort type;
+            do
+            {
+                Console.WriteLine("(1 - UAH, 2 - UAH, 3 - EUR)");
+                Console.Write("Введите валюту карточки которую хотите создать: ");
+                type = ushort.Parse(Console.ReadLine());
+
+                if (type < 1 || type > 3)
+                {
+                    log.printInLog($"{Login} выбрал недоступную валюту", "WARN");
+                }
+                {
+                    log.printInLog($"{Login} выбрал валюту для своей новой карты", "INFO");
+                }
+            }
+            while (type < 1 || type > 3);
             if (Cards == null)
             {
                 Cards = new Card[1];
                 Cards[0] = new Card(type);
                 log.printInLog($"{Login} завел свою первую карту", "INFO");
+
+                if (!Directory.Exists("Cards")) { Directory.CreateDirectory("Cards"); }
+                log.printInLog($"Новая каррта {Login} добавлена в базу данных", "INFO");
+                File.AppendAllText($"Cards/{Login}.txt", String.Format("{0} {1} {2} {3} {4} {5}\n", Cards[0].CVV, Cards[0].Money, type, Cards[0].Type, Cards[0].CardId, Cards[0].EndTime));
+
+                addToSystem(Cards[0].CardId);
             }
             else
             {
@@ -69,15 +92,41 @@ namespace BankSystem
                 {
                     temp[i] = Cards[i];
                 }
+                temp[Cards.Length] = new Card(type);
+
                 Cards = temp;
                 log.printInLog($"{Login} завел новую карту", "INFO");
+
+                if (!Directory.Exists("Cards")) { Directory.CreateDirectory("Cards"); }
+                File.AppendAllText($"Cards/{Login}.txt", String.Format("{0} {1} {2} {3} {4} {5} \n", temp[Cards.Length - 1].CVV, temp[Cards.Length - 1].Money, type, temp[Cards.Length - 1].Type, temp[Cards.Length - 1].CardId, temp[Cards.Length - 1].EndTime));
+                log.printInLog($"Новая каррта {Login} добавлена в базу данных", "INFO");
+
+                addToSystem(temp[Cards.Length - 1].CardId);
             }
         }
 
+        private void addToSystem(string cardId)
+        {
+            //название начинается с восклицательного знака чтобы легко найти файл
+            File.AppendAllText("Cards/!CardLogs.txt", String.Format("{0} {1}\n", Login, cardId));
+
+            string text = File.ReadAllText("Cards/!CardLogs.txt");
+            string[] mas = text.Split("\n");
+            Array.Sort(mas);
+
+            File.WriteAllText("Cards/!CardLogs.txt", "");
+
+            for (int i = 0; i < mas.Length; i++)
+            {
+                File.AppendAllText("Cards/!CardLogs.txt", String.Format("{0}\n", mas[i]));
+            }
+
+        }
 
         private double[] transfer = new double[3];
-        public double getAllMoney()
+        public void getAllMoney()
         {
+            log.printInLog($"{Login} запросил общий счёт", "INFO");
             double sum = 0;
             transfer[0] = 1;//UAH to UAH
             transfer[1] = Statistic.USDtransferUAH;//USD to UAH
@@ -85,9 +134,102 @@ namespace BankSystem
 
             for (int i = 0; i < Cards.Length; i++)
             {
-                sum += Cards[i].Money * transfer[Cards[i].MoneyType - 1]; 
+                sum += Cards[i].Money * transfer[Cards[i].MoneyType - 1];
             }
-            return sum;
+            Console.WriteLine($"Общее количество денег (в грн): {sum}");
         }
+
+        public void showCards()
+        {
+            log.printInLog($"{Login} запросил информацию о картах", "INFO");
+            for (int i = 0; i < Cards.Length; i++)
+            {
+                Console.WriteLine(String.Format("{0} {1} \n{2} {3} \n{}\n", i, Cards[i].Type, Cards[i].CardId, Cards[i].Money, Cards[i].MoneyType));
+            }
+        }
+        public void payMoneyTo()
+        {
+            log.printInLog($"{Login} запросил перевод на другую карту", "INFO");
+            string text = File.ReadAllText("Cards/!CardLogs.txt");
+            string[] mas = text.Split("\n");
+
+
+            string cardId;
+            bool isOk = false;
+            //Алгоритм ЛУНА
+            do
+            {
+                Console.WriteLine("Напишите карточку на которую хотите перевести деньги: ");
+                cardId = Console.ReadLine();
+
+                int sum = 0;
+                for (int i = 0; i < 16; i++)
+                {
+
+                    if (i + 1 % 2 != 0)
+                    {
+                        sum += Convert.ToInt32(cardId[i]) * 2;
+                    }
+                    else
+                    {
+                        sum += Convert.ToInt32(cardId[i]);
+                    }
+                }
+                isOk = sum % 10 == 0 ? true : false;
+                if (!isOk)
+                {
+                    log.printInLog($"{Login} указал некорекктную карту {cardId}", "INFO");
+                }
+
+            } while (!isOk);
+            log.printInLog($"{Login} указал корекктную карту {cardId}", "INFO");
+
+
+            string[] temp;
+            for (int i = 0; i < mas.Length; i++)
+            {
+                temp = mas[i].Split(" ");
+                if (temp[1] == cardId)
+                    log.printInLog($"{Login} начал перевод на карту {cardId}", "INFO");
+                {
+
+                }
+            }
+
+
+        }
+        private Card[] verifyCard()
+        {
+            string text;
+            string[] cards, temp;
+
+            log.printInLog($"Верификация карточек {Login} начата", "INFO");
+            if (!Directory.Exists("Cards")) { Directory.CreateDirectory("Cards"); }
+
+
+            if (!File.Exists($"Cards/{Login}.txt"))
+            {
+                log.printInLog($"Верификация карточек {Login} закончена (отсутствие карточек)", "INFO");
+                return null;
+            }
+
+
+
+            text = File.ReadAllText($"Cards/{Login}.txt");
+            cards = text.Split("\n");
+            Card[] verifiedCards = new Card[cards.Length - 1];
+
+            for (int i = 0; i < cards.Length - 1; i++)
+            {
+                temp = cards[i].Split(" ");
+                verifiedCards[i] = new Card(Convert.ToInt32(temp[0]), Convert.ToDouble(temp[1]), Convert.ToUInt16(temp[2]), temp[3], temp[4], Convert.ToDateTime(temp[5]));
+            }
+            log.printInLog($"Верификация карточек {Login} закончена, верифицировано {verifiedCards.Length} карточек)", "INFO");
+            return verifiedCards;
+
+            //  String.Format("{0} {1} {2} {3} {4} {5}\n", temp[Cards.Length].CVV, temp[Cards.Length].Money, type, temp[Cards.Length].Type, temp[Cards.Length].CardId, temp[Cards.Length].EndTime));
+            // 
+        }
+
     }
 }

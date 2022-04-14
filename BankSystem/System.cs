@@ -13,7 +13,7 @@ namespace BankSystem
     {
         private Card[] allCards;
         private Logger log = new Logger();
-        private BankAccount account;
+        private BankAccount Account;
 
 
 
@@ -179,13 +179,17 @@ namespace BankSystem
             {
                 Console.Write("Введите логин: ");
                 string login = Console.ReadLine();
+                log.printInLog("Неизвестный пользователь ввел логин в поле регистрации", "INFO");
+                log.printInLog($"Неизвестный пользователь переименован в {login}", "INFO");
 
 
                 if (File.Exists("Accounts.txt"))
                 {
                     throw new FileNotFoundException("У нашего банка еще нет пользователей", "Account.txt");
                 }
+
                 string DB = File.ReadAllText("Accounts.txt");
+                log.printInLog($"{login} запросил аккаунты для входа в систему", "INFO");
 
 
                 string[] DBINFO = DB.Split("\n");
@@ -194,26 +198,65 @@ namespace BankSystem
                     string[] infoLine = DBINFO[i].Split(" ");
                     if (infoLine[0] == login)
                     {
+                        log.printInLog($"Аккаунт {login} найден успешно", "INFO");
+
                         Console.Write("Введите пароль: ");
                         string password = SHA256(Console.ReadLine());
+                        log.printInLog($"{login} Ввел пароль", "INFO");
+                        log.printInLog($"Пароль {login} успешно зашифрован", "INFO");
+
+
                         if (infoLine[1] == password)
                         {
+                            log.printInLog($"{login} успешно зашёл в систему", "INFO");
+
                             string[] AdditionalInfo = DBINFO[i + 2].Split(" ");
                             string[] birth = AdditionalInfo[3].Split(".");
                             string[] create = AdditionalInfo[4].Split(".");
 
                             DateTime birthday = new DateTime(Convert.ToInt16(birth[0]), Convert.ToInt16(birth[1]), Convert.ToInt16(birth[2]));
                             DateTime DayOfCreation = new DateTime(Convert.ToInt16(create[0]), Convert.ToInt16(create[1]), Convert.ToInt16(create[2]));
+                            log.printInLog($"Информация о {login} успешно считана", "INFO");
+
+                            Account = new BankAccount(AdditionalInfo[0], AdditionalInfo[1], AdditionalInfo[2], birthday, DayOfCreation, login, password, DBINFO[i + 1]);
+                            log.printInLog($"Аккаунт {login} готов к использованию", "INFO");
+
+                            Action[] act = new Action[3];
+                            act[0] = Account.createCard;
+                            act[1] = Account.showCards;
+                            act[2] = Account.getAllMoney;
+                            act[3] = Account.payMoneyTo;
+
+                            ushort chose;
+                            do
+                            {
+                                Console.WriteLine($"{Account.FIO}");
+                                Console.WriteLine($"Количество карт: {Account.Cards.Length}");
+
+                                Console.WriteLine("\n\t Меню");
+                                Console.WriteLine("1 - Создать новую карту");
+                                Console.WriteLine("2 - Получить информкцию о картах");
+                                Console.WriteLine("3 - Получить информкцию о всех деньгах");
+                                Console.WriteLine("4 - Передать деньги на другую карту");
+                                Console.WriteLine("0 - Выйти из аккаунта\n");
+
+                                Console.Write("Ваш выбор: ");
+                                chose = ushort.Parse(Console.ReadLine());
+
+                                if (chose == 0)
+                                {
+                                    log.printInLog($"{login} вышел из системы", "INFO");
+                                    return;
+                                }
+                                act[chose - 1]?.Invoke();
+
+                            } while (true);
 
 
-                            account = new BankAccount(AdditionalInfo[0], AdditionalInfo[1], AdditionalInfo[2], birthday, DayOfCreation, login, password, DBINFO[i + 1]);
-
-                            Console.WriteLine("Ok");
-                            // verifyCards()
                         }
                         else
                         {
-                            throw new Exception("Некорректный пароль");
+                            throw new Exception($"{login}: Некорректный пароль");
                         }
                     }
                 }
@@ -234,16 +277,6 @@ namespace BankSystem
 
             }
         }
-
-        public void logOut()
-        {
-
-        }
-        public void verifyCards(BankAccount bk)
-        {
-
-        }
-
 
 
     }

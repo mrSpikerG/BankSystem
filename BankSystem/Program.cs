@@ -30,7 +30,7 @@ namespace BankSystem
 
                 if (check != 0)
                 {
-                    act[check - 1]();
+                    act[check - 1]?.Invoke();
                 }
             } while (check != 0);
         }
