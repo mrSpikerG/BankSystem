@@ -340,6 +340,7 @@ namespace BankSystem
                             tmp2[1] = Math.Round(Convert.ToDouble(tmp2[1]) + convertMoney / transfer[Convert.ToUInt16(tmp2[2])-1],2).ToString();
                             tmp1[i] = String.Join(" ", tmp2);
                             log.printInLog($"неизвестный пользователь пополнил счет на карте {cardId}", "INFO");
+                            break;
                         }
                     }
                     userInfo = String.Join("\n", tmp1);
